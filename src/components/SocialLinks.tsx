@@ -1,23 +1,36 @@
 import { SOCIALS, type BrandKey } from "../config/site";
+import { BRAND_GLYPHS } from "../lib/brands";
 import { BrandIcon } from "./BrandIcon";
 import { Palette, type PaletteRow } from "./Palette";
 
+/**
+ * TikTok mark: ONE svg with three stacked paths (cyan / red echo + white note)
+ * instead of three separate SVG elements. The viewBox is cropped to the real
+ * glyph bounds so the note is optically centred, and it is sized to match the
+ * other brand icons. Offsets are in SVG user units so they stay crisp at any DPR.
+ */
+function TikTokGlyph() {
+  const d = BRAND_GLYPHS.tiktok.path;
+  return (
+    <svg className="tt" viewBox="1.4 -1.2 21.6 26.4" width={25} height={30} aria-hidden="true" focusable="false">
+      <path className="tt-c" d={d} fill="#25f4ee" />
+      <path className="tt-r" d={d} fill="#fe2c55" />
+      <path className="tt-w" d={d} fill="#fff" />
+    </svg>
+  );
+}
+
 function Glyph({ brand }: { brand: BrandKey }) {
-  if (brand === "tiktok") {
-    // the classic cyan / red split behind the white note
-    return (
-      <span className="tt" aria-hidden="true">
-        <BrandIcon name="tiktok" size={24} className="tt-c" />
-        <BrandIcon name="tiktok" size={24} className="tt-r" />
-        <BrandIcon name="tiktok" size={24} className="tt-w" />
-      </span>
-    );
-  }
+  if (brand === "tiktok") return <TikTokGlyph />;
   return <BrandIcon name={brand} size={brand === "telegram" ? 30 : 28} />;
 }
 
 const LOOK: Partial<Record<BrandKey, Pick<PaletteRow, "tileBg" | "tileGlow" | "tileBorder">>> = {
-  tiktok: { tileBg: "#0a0a0f", tileGlow: "rgba(37,244,238,0.22)", tileBorder: "rgba(255,255,255,0.1)" },
+  tiktok: {
+    tileBg: "linear-gradient(145deg,#1b1b24,#050508)",
+    tileGlow: "rgba(37,244,238,0.22)",
+    tileBorder: "rgba(255,255,255,0.14)",
+  },
   whatsapp: { tileBg: "#25d366", tileGlow: "rgba(37,211,102,0.5)" },
   telegram: {
     tileBg: "linear-gradient(145deg,#3bb4ee,#1e92c9)",

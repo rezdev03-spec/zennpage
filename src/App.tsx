@@ -1,3 +1,5 @@
+import { useRef } from "react";
+import { usePerfMode } from "./hooks/usePerfMode";
 import { TerminalHeader } from "./components/TerminalHeader";
 import { FloatingLogos } from "./components/FloatingLogos";
 import { Profile } from "./components/Profile";
@@ -10,8 +12,10 @@ import { TechStack } from "./components/TechStack";
 import { Footer } from "./components/Footer";
 
 export default function App() {
+  const col = useRef<HTMLDivElement>(null);
+  usePerfMode(col);
   return (
-    <div className="col">
+    <div className="col" ref={col}>
       <TerminalHeader />
       <div className="stage">
         <FloatingLogos />

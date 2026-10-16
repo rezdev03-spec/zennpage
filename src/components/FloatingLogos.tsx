@@ -39,9 +39,31 @@ const ITEMS: Item[] = [
   { g: "vercel", x: 3, y: 1560, s: 46, o: 0.28, b: 2, r: -8 },
 ];
 
+/** Distinct blur radii, each baked once into a shared SVG filter. */
+const BLURS = [...new Set(ITEMS.map((it) => it.b))];
+const blurId = (b: number) => `lb${String(b).replace(".", "_")}`;
+
+/**
+ * Performance notes (low-end Android GPUs):
+ * - The blur lives INSIDE each SVG (feGaussianBlur), so it is rasterised once into the
+ *   layer's texture. A CSS `filter: blur()` on a moving element is re-run by the GPU
+ *   every frame, which was the single most expensive thing on this page.
+ * - The wrapper only animates `transform` (compositor-only).
+ * - Emoji are drawn as SVG <text> so they take the same baked-blur path.
+ */
 export function FloatingLogos() {
   return (
     <div className="logos" aria-hidden="true">
+      <svg width="0" height="0" style={{ position: "absolute" }} focusable="false">
+        <defs>
+          {BLURS.map((b) => (
+            <filter key={b} id={blurId(b)} x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation={b} />
+            </filter>
+          ))}
+        </defs>
+      </svg>
+
       {ITEMS.map((it, i) => {
         const glyph = BRAND_GLYPHS[it.g];
         const style = {
@@ -49,25 +71,26 @@ export function FloatingLogos() {
           top: it.y,
           width: it.s,
           height: it.s,
-          "--o": it.o,
-          "--b": `${it.b}px`,
           "--r": `${it.r}deg`,
           "--t": `${9 + (i % 5) * 2.2}s`,
           "--dl": `${-(i * 1.7)}s`,
         } as CSSProperties;
 
-        if (!glyph) {
-          return (
-            <span key={i} className="logo logo-emoji" style={{ ...style, fontSize: it.s * 0.82 }}>
-              {it.g}
-            </span>
-          );
-        }
-        const hex = glyph.hex === "000000" || glyph.hex === "181717" ? "e6edf3" : glyph.hex;
+        const hex = glyph ? (glyph.hex === "000000" || glyph.hex === "181717" ? "e6edf3" : glyph.hex) : "";
         return (
-          <svg key={i} className="logo" viewBox="0 0 24 24" fill={`#${hex}`} style={style}>
-            <path d={glyph.path} />
-          </svg>
+          <span key={i} className="logo" style={style}>
+            <svg viewBox="0 0 24 24" width="100%" height="100%" opacity={it.o}>
+              <g filter={`url(#${blurId(it.b)})`}>
+                {glyph ? (
+                  <path d={glyph.path} fill={`#${hex}`} />
+                ) : (
+                  <text x="12" y="12.5" fontSize="19" textAnchor="middle" dominantBaseline="central">
+                    {it.g}
+                  </text>
+                )}
+              </g>
+            </svg>
+          </span>
         );
       })}
     </div>
