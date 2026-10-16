@@ -8,10 +8,25 @@ export const SITE = {
   handle: "ZennLonevyn",
   username: "@zennlonevyn",
   tagline: "Personal Hub",
-  bio: "Ngulik web, bikin tools, dan eksplorasi AI.",
+  bio: "Tinkering with web, building tools, and exploring AI.",
   bioAlt: "Independent developer exploring code, tools, and AI.",
   /** Set to an image path (e.g. "/avatar.jpg") to replace the geometric avatar. */
   avatarImage: null as string | null,
+};
+
+/**
+ * Live visitor counter.
+ * Counts unique browsers (one hit per browser) via the free Abacus counter API
+ * (https://abacus.jasoncameron.dev) and re-reads the real number every `pollMs`.
+ * Change `namespace` to something unique to you so nobody else shares your counter.
+ */
+export const VISITORS = {
+  namespace: "zenn-link-hub-zl7x",
+  key: "visitors",
+  /** How often the displayed number is refreshed from the server (ms). */
+  pollMs: 10_000,
+  /** null = count each browser once, ever. Or a number of hours before the same browser counts again. */
+  recountAfterHours: null as number | null,
 };
 
 export type BrandKey =
@@ -28,12 +43,18 @@ export type BrandKey =
   | "react"
   | "vercel";
 
+export interface Badge {
+  label: string;
+  tone: "amber" | "cyan";
+}
+
 export interface SocialLink {
   id: string;
   brand: BrandKey;
   label: string;
   note: string;
   url: string;
+  badge?: Badge;
 }
 
 export const SOCIALS: SocialLink[] = [
@@ -43,6 +64,7 @@ export const SOCIALS: SocialLink[] = [
     label: "TikTok",
     note: "@zennlonevyn",
     url: "https://www.tiktok.com/@zennlonevyn",
+    badge: { label: "Follow 🔥", tone: "amber" },
   },
   {
     id: "whatsapp",
@@ -68,6 +90,7 @@ export interface Project {
   domain: string;
   url: string;
   icon: "link" | "clipboard" | "nyx";
+  badge?: Badge;
 }
 
 export const PROJECTS: Project[] = [
@@ -97,6 +120,7 @@ export const PROJECTS: Project[] = [
     domain: "z-ai.zone.id",
     url: "https://z-ai.zone.id",
     icon: "nyx",
+    badge: { label: "AI Chatbot", tone: "cyan" },
   },
 ];
 
